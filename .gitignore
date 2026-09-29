@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+data/
+*.zip
+seed/pruebas/grande-6mb.jpg
