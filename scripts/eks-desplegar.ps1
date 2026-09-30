@@ -3,7 +3,14 @@ param([string]$Cluster = "lomax-eks")
 $raiz = (Resolve-Path "$PSScriptRoot\..").Path
 $ev = Join-Path $raiz "evidencias\E7"
 New-Item -ItemType Directory -Force -Path $ev | Out-Null
-$nodo = "floci-eks-$Cluster"
+$nodo = "floci-eks-lomax-eks"
+$version = "1.0.0-39befa1"
+$ipReg = IpDe "floci-ecr-registry"
+Write-Host "Registro ECR (IP en lomax-net): $ipReg"
+foreach ($n in @("lomax-backend", "lomax-frontend")) {
+    $ref = "${ipReg}:5000/${n}:$version"
+    docker exec $nodo ctr --address /run/k3s/containerd/containerd.sock -n k8s.io images pull --plain-http $ref | Tee-Object "$ev\pull-en-nodo-$n.txt"
+}
 
 function IpDe($contenedor) {
     $redes = (docker inspect $contenedor | Out-String | ConvertFrom-Json)[0].NetworkSettings.Networks
@@ -28,13 +35,20 @@ if ($LASTEXITCODE -ne 0) {
 }
 aws eks describe-cluster --name $Cluster 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Creando cluster $Cluster ..."
-    aws eks create-cluster --name $Cluster --role-arn arn:aws:iam::000000000000:role/eks-role --resources-vpc-config subnetIds=subnet-00000000 | Out-Null
+    $subnet = aws ec2 describe-subnets --query "Subnets[0].SubnetId" --output text
+    if (-not $subnet -or $subnet -eq "None") {
+        $vpc = aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query "Vpc.VpcId" --output text
+        $subnet = aws ec2 create-subnet --vpc-id $vpc --cidr-block 10.0.1.0/24 --query "Subnet.SubnetId" --output text
+    }
+    Write-Host "Subred: $subnet"
+    aws eks create-cluster --name $Cluster --role-arn arn:aws:iam::000000000000:role/eks-role --resources-vpc-config "subnetIds=$subnet" | Out-Null
+    if ($LASTEXITCODE -ne 0) { Write-Host "No se pudo crear el cluster." -ForegroundColor Red; return }
 }
-for ($i = 0; $i -lt 60; $i++) {
-    $estado = aws eks describe-cluster --name $Cluster --query "cluster.status" --output text
+for ($i = 0; $i -lt 40; $i++) {
+    $estado = aws eks describe-cluster --name $Cluster --query "cluster.status" --output text 2>$null
     Write-Host "  estado del cluster: $estado"
     if ($estado -eq "ACTIVE") { break }
+    if ([string]::IsNullOrWhiteSpace($estado)) { Write-Host "El cluster no existe." -ForegroundColor Red; return }
     Start-Sleep -Seconds 5
 }
 aws eks describe-cluster --name $Cluster --query "cluster.{Nombre:name,Estado:status,Version:version}" --output table | Tee-Object "$ev\cluster.txt"
