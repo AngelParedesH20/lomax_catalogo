@@ -4,3 +4,5 @@ dist/
 data/
 *.zip
 seed/pruebas/grande-6mb.jpg
+k8s/kubeconfig
+k8s/lomax.generado.yaml
