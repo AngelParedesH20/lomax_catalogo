@@ -18,6 +18,32 @@ services:
       - floci-data:/app/data
     networks:
       - lomax-net
+  backend:
+    build: ./backend
+    image: lomax-backend:dev
+    container_name: lomax-backend
+    depends_on:
+      - floci
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      DB_HOST: floci
+      DB_PORT: "7001"
+      DB_USER: lomax_admin
+      DB_PASSWORD: LomaxAdmin2026
+      DB_NAME: lomax
+      AWS_ENDPOINT_URL: http://floci:4566
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      BUCKET_ORIGINALES: lomax-originales
+      BUCKET_MINIATURAS: lomax-miniaturas
+      TABLA_ATRIBUTOS: ProductosAtributos
+      LAMBDA_FUNCION: generar-miniatura
+    networks:
+      - lomax-net
+    restart: unless-stopped
 
 networks:
   lomax-net:

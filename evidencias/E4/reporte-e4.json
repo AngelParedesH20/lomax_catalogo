@@ -1,0 +1,186 @@
+[
+  {
+    "nombre": "Listar categorías",
+    "peticion": "GET /categorias",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "API=3 categorías; RDS=3; coinciden=true",
+    "ok": true
+  },
+  {
+    "nombre": "Crear producto válido",
+    "peticion": "POST /productos",
+    "esperado": 201,
+    "http": 201,
+    "detalle": "HTTP estado=PENDIENTE; RDS estado=PENDIENTE, código=E4-MUNNHWJY; DynamoDB atributos={\"conexion\":\"USB\",\"distribucion\":\"Español\",\"retroiluminado\":true}, estado_procesamiento=PENDIENTE",
+    "ok": true
+  },
+  {
+    "nombre": "Código duplicado",
+    "peticion": "POST /productos (mismo código)",
+    "esperado": 409,
+    "http": 409,
+    "detalle": "RDS filas con ese código=1; paso=rds; devuelve el producto_id existente=true",
+    "ok": true
+  },
+  {
+    "nombre": "Precio negativo",
+    "peticion": "POST /productos (precio -5)",
+    "esperado": 400,
+    "http": 400,
+    "detalle": "precio negativo; RDS filas creadas=0; paso=validacion; detalles=[{\"campo\":\"precio\",\"mensaje\":\"No puede ser negativo\"}]",
+    "ok": true
+  },
+  {
+    "nombre": "Categoría inexistente",
+    "peticion": "POST /productos (categoria_id 99999)",
+    "esperado": 400,
+    "http": 400,
+    "detalle": "categoría inexistente; RDS filas creadas=0; paso=rds; detalles=\"productos_categoria_id_fkey\"",
+    "ok": true
+  },
+  {
+    "nombre": "Campos obligatorios ausentes",
+    "peticion": "POST /productos ({codigo})",
+    "esperado": 400,
+    "http": 400,
+    "detalle": "faltan campos; RDS filas creadas=0; paso=validacion; detalles=[{\"campo\":\"nombre\",\"mensaje\":\"Es obligatorio y debe ser un texto no vacío\"},{\"campo\":\"descripcion\",\"mensaje\":\"Es obligatorio y debe ser un texto no vacío\"},{\"campo\":\"precio\",\"mensaje\":\"Es obligatorio y debe ser numérico\"},{\"campo\":\"categoria_id\",\"mensaje\":\"Es obligatorio y debe ser un entero positivo\"},{\"campo\":\"atributos\",\"mensaje\":\"Es obligatorio y debe ser un objeto\"}]",
+    "ok": true
+  },
+  {
+    "nombre": "Atributos vacíos",
+    "peticion": "POST /productos (atributos {})",
+    "esperado": 400,
+    "http": 400,
+    "detalle": "atributos vacíos; RDS filas creadas=0; paso=validacion; detalles=[{\"campo\":\"atributos\",\"mensaje\":\"Debe incluir al menos un atributo\"}]",
+    "ok": true
+  },
+  {
+    "nombre": "Detalle de producto pendiente",
+    "peticion": "GET /productos/{id}",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "HTTP estado=PENDIENTE; RDS estado=PENDIENTE; atributos vía DynamoDB={\"conexion\":\"USB\",\"distribucion\":\"Español\",\"retroiluminado\":true}",
+    "ok": true
+  },
+  {
+    "nombre": "La lista solo trae publicados",
+    "peticion": "GET /productos",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "HTTP devuelve 1; RDS publicados=1; el pendiente no aparece=true",
+    "ok": true
+  },
+  {
+    "nombre": "Producto inexistente",
+    "peticion": "GET /productos/{uuid inexistente}",
+    "esperado": 404,
+    "http": 404,
+    "detalle": "paso=rds",
+    "ok": true
+  },
+  {
+    "nombre": "Identificador mal formado",
+    "peticion": "GET /productos/no-es-uuid",
+    "esperado": 400,
+    "http": 400,
+    "detalle": "paso=validacion",
+    "ok": true
+  },
+  {
+    "nombre": "Imagen no disponible",
+    "peticion": "GET /productos/{id}/imagen (sin imagen)",
+    "esperado": 404,
+    "http": 404,
+    "detalle": "S3 miniaturas del producto=0",
+    "ok": true
+  },
+  {
+    "nombre": "Reprocesar sin original",
+    "peticion": "POST /productos/{id}/reprocesar",
+    "esperado": 409,
+    "http": 409,
+    "detalle": "S3 originales del producto=0; paso=s3",
+    "ok": true
+  },
+  {
+    "nombre": "Imagen con formato no permitido",
+    "peticion": "POST /productos/{id}/imagen (texto renombrado .jpg)",
+    "esperado": 415,
+    "http": 415,
+    "detalle": "RDS estado=PENDIENTE; S3 originales=0",
+    "ok": true
+  },
+  {
+    "nombre": "Imagen de más de 5 MB",
+    "peticion": "POST /productos/{id}/imagen (6 MB)",
+    "esperado": 413,
+    "http": 413,
+    "detalle": "RDS estado=PENDIENTE; S3 originales=0",
+    "ok": true
+  },
+  {
+    "nombre": "Publicar con imagen válida",
+    "peticion": "POST /productos/{id}/imagen (JPEG 1200x800)",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "RDS estado=PUBLICADO; DynamoDB estado_procesamiento=LISTA, miniatura_key=miniaturas/93294858-05ca-4e73-8d68-9306aedbbccf.jpg; S3 original=true, miniatura=true (300x200)",
+    "ok": true
+  },
+  {
+    "nombre": "Obtener miniatura",
+    "peticion": "GET /productos/{id}/imagen",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "Content-Type=image/jpeg; SHA-256 endpoint=99a35bc9ccc48648 / S3=99a35bc9ccc48648; idénticos=true; 5109 bytes",
+    "ok": true
+  },
+  {
+    "nombre": "Catálogo combina RDS + DynamoDB",
+    "peticion": "GET /productos",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "aparece=true; atributos HTTP = DynamoDB: true; miniatura_key HTTP = DynamoDB: true",
+    "ok": true
+  },
+  {
+    "nombre": "Detalle de producto publicado",
+    "peticion": "GET /productos/{id}",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "HTTP estado=PUBLICADO; RDS estado=PUBLICADO; instancia=b1d0c62948b6",
+    "ok": true
+  },
+  {
+    "nombre": "Reprocesar (sin duplicar objetos)",
+    "peticion": "POST /productos/{id}/reprocesar",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "S3 antes={\"originales\":[\"originales/93294858-05ca-4e73-8d68-9306aedbbccf.jpg\"],\"miniaturas\":[\"miniaturas/93294858-05ca-4e73-8d68-9306aedbbccf.jpg\"]}; después={\"originales\":[\"originales/93294858-05ca-4e73-8d68-9306aedbbccf.jpg\"],\"miniaturas\":[\"miniaturas/93294858-05ca-4e73-8d68-9306aedbbccf.jpg\"]}; sin objetos extra=true",
+    "ok": true
+  },
+  {
+    "nombre": "Repetir la carga de la misma imagen",
+    "peticion": "POST /productos/{id}/imagen (repetida)",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "S3 originales=1, miniaturas=1; sin objetos extra=true",
+    "ok": true
+  },
+  {
+    "nombre": "Reemplazar JPEG por PNG",
+    "peticion": "POST /productos/{id}/imagen (PNG)",
+    "esperado": 200,
+    "http": 200,
+    "detalle": "S3 originales=[\"originales/93294858-05ca-4e73-8d68-9306aedbbccf.png\"], miniaturas=[\"miniaturas/93294858-05ca-4e73-8d68-9306aedbbccf.jpg\"]; DynamoDB imagen_original_key=originales/93294858-05ca-4e73-8d68-9306aedbbccf.png",
+    "ok": true
+  },
+  {
+    "nombre": "Limpieza del producto de prueba",
+    "peticion": "(directo a RDS, DynamoDB y S3)",
+    "esperado": 20,
+    "http": 20,
+    "detalle": "RDS productos tras la limpieza=20",
+    "ok": true
+  }
+]
