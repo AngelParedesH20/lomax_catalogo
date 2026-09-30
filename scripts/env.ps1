@@ -1,4 +1,8 @@
-try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
+try { 
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8 
+$env:PYTHONUTF8 = "1"
+$env:PYTHONIOENCODING = "utf-8"
+} catch {}
 
 $env:AWS_ENDPOINT_URL      = "http://localhost:4566"
 $env:AWS_DEFAULT_REGION    = "us-east-1"

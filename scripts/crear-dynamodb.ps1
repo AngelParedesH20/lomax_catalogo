@@ -1,4 +1,4 @@
-. "$PSScriptRoot\env.ps1"
+﻿. "$PSScriptRoot\env.ps1"
 $tabla = "ProductosAtributos"
 
 aws dynamodb describe-table --table-name $tabla 2>$null | Out-Null

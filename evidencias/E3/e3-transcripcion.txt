@@ -1,0 +1,128 @@
+﻿**********************
+Inicio de la transcripción de Windows PowerShell
+Hora de inicio: 20260929211023
+Nombre de usuario: ANGELPC\Angel
+Usuario RunAs: ANGELPC\Angel
+Nombre de la configuración: 
+Máquina: ANGELPC (Microsoft Windows NT 10.0.26200.0)
+Aplicación host: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command Import-Module 'c:\Users\LENOVO\.vscode\extensions\ms-vscode.powershell-2025.4.0\modules\PowerShellEditorServices\PowerShellEditorServices.psd1'; Start-EditorServices -HostName 'Visual Studio Code Host' -HostProfileId 'Microsoft.VSCode' -HostVersion '2025.4.0' -BundledModulesPath 'c:\Users\LENOVO\.vscode\extensions\ms-vscode.powershell-2025.4.0\modules' -EnableConsoleRepl -StartupBanner "PowerShell Extension v2025.4.0
+Copyright (c) Microsoft Corporation.
+
+https://aka.ms/vscode-powershell
+Type 'help' to get help.
+" -LogLevel 'Warning' -LogPath 'c:\Users\LENOVO\AppData\Roaming\Code\logs\20260929T102640\window2\exthost\ms-vscode.powershell' -SessionDetailsPath 'c:\Users\LENOVO\AppData\Roaming\Code\User\globalStorage\ms-vscode.powershell\sessions\PSES-VSCode-17824-740783.json' -FeatureFlags @() 
+Id. de proceso: 18604
+PSVersion: 5.1.26100.9444
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9444
+BuildVersion: 10.0.26100.9444
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+
+===== 1. JPEG valido 1200x800 (TEC-001) =====
+
+Entorno listo -> http://localhost:4566 | RDS localhost:7001
+Payload enviado: {"bucket":"lomax-originales","key":"originales/a0000000-0000-4000-8000-000000000001.jpg","producto_id":"a0000000-0000-4000-8000-000000000001"}
+--- lambda invoke (transporte) ---
+{
+    "StatusCode":  200,
+    "ExecutedVersion":  "$LATEST"
+}
+--- Resultado funcional (payload de la función) ---
+{"ok":true,"estado":"LISTA","producto_id":"a0000000-0000-4000-8000-000000000001","original":{"clave":"originales/a0000000-0000-4000-8000-000000000001.jpg","ancho":1200,"alto":800,"bytes":51100},"miniatura":{"bucket":"lomax-miniaturas","clave":"miniaturas/a0000000-0000-4000-8000-000000000001.jpg","ancho":300,"alto":200,"bytes":5109}}
+
+===== 2. Listado, get-object, dimensiones y referencia en DynamoDB =====
+2026-09-29 21:10:25      51100 a0000000-0000-4000-8000-000000000001.jpg
+2026-09-29 21:10:29       5109 a0000000-0000-4000-8000-000000000001.jpg
+    "ContentType": "image/jpeg",
+    "Metadata": {},
+    "StorageClass": "STANDARD"
+}
+
+
+
+
+===== 3. Repetir la invocacion (misma imagen): sin objetos extra =====
+Entorno listo -> http://localhost:4566 | RDS localhost:7001
+Payload enviado: {"bucket":"lomax-originales","key":"originales/a0000000-0000-4000-8000-000000000001.jpg","producto_id":"a0000000-0000-4000-8000-000000000001"}
+--- lambda invoke (transporte) ---
+{
+    "StatusCode":  200,
+    "ExecutedVersion":  "$LATEST"
+}
+--- Resultado funcional (payload de la función) ---
+{"ok":true,"estado":"LISTA","producto_id":"a0000000-0000-4000-8000-000000000001","original":{"clave":"originales/a0000000-0000-4000-8000-000000000001.jpg","ancho":1200,"alto":800,"bytes":51100},"miniatura":{"bucket":"lomax-miniaturas","clave":"miniaturas/a0000000-0000-4000-8000-000000000001.jpg","ancho":300,"alto":200,"bytes":5109}}
+
+Objetos en miniaturas/ -> antes: 1 | despues: 1 (deben ser iguales)
+
+===== 4. PNG valido (TEC-003) =====
+
+Entorno listo -> http://localhost:4566 | RDS localhost:7001
+Payload enviado: {"bucket":"lomax-originales","key":"originales/a0000000-0000-4000-8000-000000000003.png","producto_id":"a0000000-0000-4000-8000-000000000003"}
+--- lambda invoke (transporte) ---
+{
+    "StatusCode":  200,
+    "ExecutedVersion":  "$LATEST"
+}
+--- Resultado funcional (payload de la función) ---
+{"ok":true,"estado":"LISTA","producto_id":"a0000000-0000-4000-8000-000000000003","original":{"clave":"originales/a0000000-0000-4000-8000-000000000003.png","ancho":1200,"alto":800,"bytes":93731},"miniatura":{"bucket":"lomax-miniaturas","clave":"miniaturas/a0000000-0000-4000-8000-000000000003.jpg","ancho":300,"alto":200,"bytes":5070}}
+
+
+===== 5. Archivo invalido (TEC-002): estado ERROR y sin miniatura =====
+
+Entorno listo -> http://localhost:4566 | RDS localhost:7001
+Payload enviado: {"bucket":"lomax-originales","key":"originales/a0000000-0000-4000-8000-000000000002.jpg","producto_id":"a0000000-0000-4000-8000-000000000002"}
+--- lambda invoke (transporte) ---
+{
+    "StatusCode":  200,
+    "ExecutedVersion":  "$LATEST"
+}
+--- Resultado funcional (payload de la función) ---
+{"ok":false,"estado":"ERROR","producto_id":"a0000000-0000-4000-8000-000000000002","motivo":"Formato no permitido: solo JPEG o PNG"}
+
+aws : 
+En F:\Universidad\6to\TE\lomax-catalogo\lomax-catalogo\scripts\pruebas\e3.ps1: 44 Carácter: 6
++ $r = aws s3api head-object --bucket lomax-miniaturas --key "miniatura ...
++      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+aws: [ERROR]: An error occurred (404) when calling the HeadObject operation: Not Found
+Codigo de salida de head-object: 254 (distinto de 0 = la miniatura NO existe, como se espera)
+
+===== 6. Archivo de mas de 5 MB (TEC-004) =====
+
+Entorno listo -> http://localhost:4566 | RDS localhost:7001
+Payload enviado: {"bucket":"lomax-originales","key":"originales/a0000000-0000-4000-8000-000000000004.jpg","producto_id":"a0000000-0000-4000-8000-000000000004"}
+--- lambda invoke (transporte) ---
+{
+    "StatusCode":  200,
+    "ExecutedVersion":  "$LATEST"
+}
+--- Resultado funcional (payload de la función) ---
+{"ok":false,"estado":"ERROR","producto_id":"a0000000-0000-4000-8000-000000000004","motivo":"La imagen supera el mÃ¡ximo de 5 MB"}
+
+
+===== 7. Reintento de TEC-002 con una imagen valida =====
+
+Entorno listo -> http://localhost:4566 | RDS localhost:7001
+Payload enviado: {"bucket":"lomax-originales","key":"originales/a0000000-0000-4000-8000-000000000002.jpg","producto_id":"a0000000-0000-4000-8000-000000000002"}
+--- lambda invoke (transporte) ---
+{
+    "StatusCode":  200,
+    "ExecutedVersion":  "$LATEST"
+}
+--- Resultado funcional (payload de la función) ---
+{"ok":true,"estado":"LISTA","producto_id":"a0000000-0000-4000-8000-000000000002","original":{"clave":"originales/a0000000-0000-4000-8000-000000000002.jpg","ancho":1200,"alto":800,"bytes":51100},"miniatura":{"bucket":"lomax-miniaturas","clave":"miniaturas/a0000000-0000-4000-8000-000000000002.jpg","ancho":300,"alto":200,"bytes":5109}}
+
+
+===== 8. Estado final de los buckets =====
+
+
+**********************
+Fin de la transcripción de Windows PowerShell
+Hora de finalización: 20260929211206
+**********************
