@@ -1,0 +1,7 @@
+services:
+  backend:
+    image: ${BACKEND_IMAGE:?ejecute primero scripts/publicar-ecr.ps1}
+    pull_policy: always
+  frontend:
+    image: ${FRONTEND_IMAGE:?ejecute primero scripts/publicar-ecr.ps1}
+    pull_policy: always

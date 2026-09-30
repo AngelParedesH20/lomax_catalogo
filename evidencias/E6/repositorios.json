@@ -1,0 +1,4 @@
+{
+    "lomax-backend":  "000000000000.dkr.ecr.us-east-1.localhost:4566/lomax-backend",
+    "lomax-frontend":  "000000000000.dkr.ecr.us-east-1.localhost:4566/lomax-frontend"
+}

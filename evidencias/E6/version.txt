@@ -1,0 +1,6 @@
+version=1.0.0-39befa1
+commit=39befa1
+backend=localhost:5100/lomax-backend:1.0.0-39befa1
+frontend=localhost:5100/lomax-frontend:1.0.0-39befa1
+backend_ecr_uri=000000000000.dkr.ecr.us-east-1.localhost:4566/lomax-backend:1.0.0-39befa1
+frontend_ecr_uri=000000000000.dkr.ecr.us-east-1.localhost:4566/lomax-frontend:1.0.0-39befa1
