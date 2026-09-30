@@ -18,5 +18,5 @@ $meta = aws lambda invoke --function-name generar-miniatura --invocation-type Re
 Write-Host "--- lambda invoke (transporte) ---"
 $meta | ConvertTo-Json
 Write-Host "--- Resultado funcional (payload de la función) ---"
-Get-Content $Salida -Raw
+Get-Content $Salida -Raw -Encoding UTF8
 if ($meta.FunctionError) { Write-Host "La ejecución reportó FunctionError: $($meta.FunctionError)" -ForegroundColor Red }
